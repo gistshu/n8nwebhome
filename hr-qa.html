@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>人資辦法Q/A</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --accent-hover: #0d5f59;
+      --border: #d1d5db;
+      --ok: #166534;
+      --err: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(180deg, #eef6ff 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(80vw, 1400px);
+      background: var(--card);
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    .site-title {
+      margin: 0 0 12px;
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .page-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .tab-link {
+      text-decoration: none;
+      background: #e5e7eb;
+      color: #111827;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .tab-link.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+    }
+
+    .desc {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-family: inherit;
+    }
+
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 0.95rem;
+      min-height: 1.4em;
+    }
+
+    .ok {
+      color: var(--ok);
+    }
+
+    .err {
+      color: var(--err);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 16px;
+      align-items: start;
+      margin-top: 8px;
+    }
+
+    .pane-title {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .left-pane textarea {
+      min-height: 360px;
+    }
+
+    .response-box {
+      width: 100%;
+      height: 420px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-family: inherit;
+      background: #ecfdf3;
+      color: #14532d;
+      overflow-y: auto;
+    }
+
+    .msg-row {
+      display: flex;
+      margin: 8px 0;
+    }
+
+    .msg-row.user {
+      justify-content: flex-end;
+    }
+
+    .msg-row.bot {
+      justify-content: flex-start;
+    }
+
+    .msg {
+      max-width: 85%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .msg.user {
+      background: #dbeafe;
+      color: #1e3a8a;
+    }
+
+    .msg.bot {
+      background: #ffffff;
+      color: #14532d;
+      border: 1px solid #bbf7d0;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 0;
+      }
+
+      .card {
+        width: 100vw;
+        max-width: 100vw;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .left-pane textarea {
+        min-height: 180px;
+      }
+
+      .response-box {
+        height: 320px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <p class="site-title">n8n 測試 網頁 title</p>
+    <nav class="page-tabs" aria-label="頁面切換">
+      <span class="tab-link active" aria-current="page">人資辦法Q/A</span>
+    </nav>
+
+    <h1>人資辦法Q/A</h1>
+    <p class="desc">輸入你的問題後，按下送出，內容會透過 webhook 傳到 n8n。</p>
+
+    <form id="ask-form">
+      <div class="content-grid">
+        <section class="left-pane">
+          <p class="pane-title">詢問內容</p>
+          <label for="question">你的問題</label>
+          <textarea id="question" name="question" placeholder="請輸入你的諮詢問題..." required>公司績效制度</textarea>
+          <div class="actions">
+            <button id="submit-btn" type="submit">查詢</button>
+          </div>
+        </section>
+
+        <section class="right-pane">
+          <p class="pane-title">回答結果</p>
+          <div id="response" class="response-box">
+            <div class="msg-row user">
+              <div class="msg user">公司績效制度</div>
+            </div>
+            <div class="msg-row bot">
+              <div class="msg bot">你好～我幫你把公司績效制度重點整理如下（內容皆來自內部資料庫）：
+
+                1) 目的與適用
+                - 目的：評估日常作業績效，作為薪資調整、績效獎金、年終發放及人員晉升或不適任處理之依據。適用於集團內所有診所與公司職員。參見資料 (id:68, id:35)。
+
+                2) 評核項目與權重（摘要）
+                - 半年評核（上、下半年各占50%）：半年度評核包含工作專業（40%）與工作態度/半年評核比例（50% 之內分配），考勤佔半年度成績10%。半年度可有±5分之加減項。
+                - 年度成績為上下半年合併，並加上年度獎懲分數（可±9分等級範圍示意）。參見資料 (id:68, id:69)。
+
+                3) 考勤扣分（資料內明列計算方式）
+                - 事假：每日扣2分（以8小時計算，未滿8小時按比例）。
+                - 病假：每日扣0.5分（以8小時計算，未滿8小時按比例）。
+                - 遲到：每分鐘扣0.5分。
+                - 早退：每分鐘扣0.1分。
+                - 曠職半日：扣10分。參見資料 (id:68)。
+
+                4) 獎懲加減分標準（摘要）
+                - 大功 +9 / 小功 +3 / 嘉獎 +1
+                - 大過 -9 / 小過 -3 / 申誡 -1
+                - 獎懲將影響年度總分（資料內有完整表格）。參見資料 (id:69)。
+
+                5) 年度考績等級與後續處理
+                - 等級：優、甲、乙、丙、丁（範圍示例：優≥90、甲89–80、乙79–70、丙69–60、丁59以下）。
+                - 考績不佳者（例如丙、丁等）會在次年元月列入檢討並擬定處理對策，嚴重者可降級、異動或資遣，需呈執行長核定。參見資料 (id:69, id:70)。
+
+                6) 不納入績效獎金/年終計算之情形（文件列示）
+                - 事假與病假合計一年超過14日（未滿一年者按比例）。
+                - 獎懲累積扣分達0.5分(含)以上。
+                - 有曠職記錄者。
+                - 有留職停薪記錄者（文件中對育嬰留停等註記有疑問，部分項目文件標註不明）。參見資料 (id:70)。
+
+                7) 面談、申訴與表單
+                - 半年需填寫員工自評（HR0044_E00x_員工自評表），主管與員工進行面談並由主管填寫評估回傳人資。
+                - 若對評核有異議，先與直屬主管討論；若無法解決，可填寫「HR0044_E00x 績效複查申請書」由人資協調。
+                - 相關表單：HR0044_E00x 績效複查/自評表、HR0044_E00x 考績異常人員檢討表等；另有提及薪資管理為 HR0045（文件內索引）。參見資料 (id:69, id:70, id:35)。
+
+                8) 文件中未明確之處
+                - 文件於績效評核具體時程（例如某些月份）與最終成績計算之責任單位處有標註問號或未明確說明。若需確認實際執行時程或負責人，文件並未明確，請聯繫人資人員補充（資料中無完整答案）。參見資料 (id:69)。
+
+                需要我幫你取得 HR0044_E00x 表格，或協助你準備績效複查申請嗎？
+
+                參考資料編號：id:68, id:69, id:70, id:35。</div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <p id="status" class="status"></p>
+    </form>
+  </main>
+
+  <script>
+    const webhookUrl = "https://39fb-211-21-155-132.ngrok-free.app/webhook/bc8b8b7a-34cd-49d0-9519-825a141a3c76";
+    const form = document.getElementById("ask-form");
+    const questionInput = document.getElementById("question");
+    const submitBtn = document.getElementById("submit-btn");
+    const statusEl = document.getElementById("status");
+    const responseEl = document.getElementById("response");
+
+    const sessionStorageKey = "n8n_session_hr_qa";
+    let sessionId = localStorage.getItem(sessionStorageKey);
+    if (!sessionId) {
+      sessionId = "sid-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem(sessionStorageKey, sessionId);
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const question = questionInput.value.trim();
+      if (!question) {
+        statusEl.textContent = "請先輸入問題。";
+        statusEl.className = "status err";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      statusEl.textContent = "傳送中...";
+      statusEl.className = "status";
+      appendMessage("user", question);
+
+      try {
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            question,
+            sessionId,
+            sentAt: new Date().toISOString()
+          })
+        });
+
+        const text = await response.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch (_e) {
+          data = null;
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${text || "Unknown error"}`);
+        }
+
+        statusEl.className = "status ok";
+
+        if (data && typeof data === "object" && "success" in data && "reply" in data) {
+          if (data.success) {
+            statusEl.textContent = "送出成功，已收到 n8n 回覆。";
+            appendMessage("bot", String(data.reply ?? ""));
+          } else {
+            statusEl.textContent = "n8n 回傳 success=false。";
+            statusEl.className = "status err";
+            appendMessage("bot", String(data.reply ?? "(無 reply 內容)"));
+          }
+        } else {
+          statusEl.textContent = "送出成功，已傳到 n8n webhook。";
+          appendMessage("bot", text || "(Webhook 無回傳內容)");
+        }
+      } catch (error) {
+        statusEl.textContent = `送出失敗：${error.message}`;
+        statusEl.className = "status err";
+        appendMessage("bot", `送出失敗：${error.message}`);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    function appendMessage(role, text) {
+      const row = document.createElement("div");
+      row.className = `msg-row ${role}`;
+
+      const bubble = document.createElement("div");
+      bubble.className = `msg ${role}`;
+      bubble.textContent = text;
+
+      row.appendChild(bubble);
+      responseEl.appendChild(row);
+      responseEl.scrollTop = responseEl.scrollHeight;
+    }
+  </script>
+</body>
+
+</html>

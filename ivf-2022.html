@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>n8n 諮詢表單</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --accent-hover: #0d5f59;
+      --border: #d1d5db;
+      --ok: #166534;
+      --err: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(180deg, #eef6ff 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(720px, 100%);
+      background: var(--card);
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+    }
+
+    .desc {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-family: inherit;
+    }
+
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 0.95rem;
+      min-height: 1.4em;
+    }
+
+    .ok {
+      color: var(--ok);
+    }
+
+    .err {
+      color: var(--err);
+    }
+
+    pre {
+      margin: 12px 0 0;
+      padding: 12px;
+      background: #111827;
+      color: #e5e7eb;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>諮詢問題送出</h1>
+    <p class="desc">輸入你的問題後，按下送出，內容會透過 webhook 傳到 n8n。</p>
+
+    <form id="ask-form">
+      <label for="question">你的問題</label>
+      <textarea id="question" name="question" placeholder="請輸入你的諮詢問題..." required></textarea>
+      <div class="actions">
+        <button id="submit-btn" type="submit">送出到 n8n</button>
+      </div>
+      <p id="status" class="status"></p>
+      <pre id="response" hidden></pre>
+    </form>
+  </main>
+
+  <script>
+    const webhookUrl = "https://e361-211-21-155-132.ngrok-free.app/webhook-test/dcafced2-af3e-4c8a-bf9f-857646cde22c";
+    const form = document.getElementById("ask-form");
+    const questionInput = document.getElementById("question");
+    const submitBtn = document.getElementById("submit-btn");
+    const statusEl = document.getElementById("status");
+    const responseEl = document.getElementById("response");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const question = questionInput.value.trim();
+      if (!question) {
+        statusEl.textContent = "請先輸入問題。";
+        statusEl.className = "status err";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      statusEl.textContent = "傳送中...";
+      statusEl.className = "status";
+      responseEl.hidden = true;
+      responseEl.textContent = "";
+
+      try {
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            question,
+            sentAt: new Date().toISOString()
+          })
+        });
+
+        const text = await response.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch (_e) {
+          data = null;
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${text || "Unknown error"}`);
+        }
+
+        statusEl.className = "status ok";
+        responseEl.hidden = false;
+
+        if (data && typeof data === "object" && "success" in data && "reply" in data) {
+          if (data.success) {
+            statusEl.textContent = "送出成功，已收到 n8n 回覆。";
+            responseEl.textContent = String(data.reply ?? "");
+          } else {
+            statusEl.textContent = "n8n 回傳 success=false。";
+            statusEl.className = "status err";
+            responseEl.textContent = String(data.reply ?? "(無 reply 內容)");
+          }
+        } else {
+          statusEl.textContent = "送出成功，已傳到 n8n webhook。";
+          responseEl.textContent = text || "(Webhook 無回傳內容)";
+        }
+      } catch (error) {
+        statusEl.textContent = `送出失敗：${error.message}`;
+        statusEl.className = "status err";
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>
