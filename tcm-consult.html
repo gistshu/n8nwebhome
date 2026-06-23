@@ -28,27 +28,28 @@
       background: linear-gradient(180deg, #eef6ff 0%, var(--bg) 100%);
       color: var(--text);
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
     }
 
     .card {
-      width: 90vw;
-      max-width: 90vw;
-      min-height: 90vh;
+      width: 100vw;
+      height: 100vh;
+      min-height: 100vh;
       background: var(--card);
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
     }
 
     .site-title {
-      margin: 0 0 18px;
+      margin: 0;
+      padding: 20px 24px 12px;
       font-size: 1.35rem;
       font-weight: 800;
       white-space: nowrap;
+      border-bottom: 1px solid #e5e7eb;
     }
 
     h1 {
@@ -85,8 +86,15 @@
     }
 
     textarea {
-      min-height: 150px;
+      min-height: 75px;
       resize: vertical;
+    }
+
+    #ask-form {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .actions {
@@ -139,11 +147,12 @@
 
     .content-grid {
       display: grid;
-      grid-template-columns: 30% 50% 20%;
-      gap: 16px;
-      align-items: start;
-      height: 80vh;
-      margin-top: 8px;
+      grid-template-columns: 20% 60% 20%;
+      gap: 0;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+      height: 100%;
     }
 
     .left-pane,
@@ -153,6 +162,13 @@
       flex-direction: column;
       min-height: 0;
       height: 100%;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .left-pane,
+    .result-pane {
+      border-right: 1px solid #e5e7eb;
     }
 
     .pane-title {
@@ -162,8 +178,10 @@
     }
 
     .left-pane textarea {
-      flex: 1;
-      min-height: 0;
+      flex: 0 0 auto;
+      min-height: 40%;
+      height: 40%;
+      max-height: none;
     }
 
     .response-box {
@@ -171,7 +189,7 @@
       flex: 1;
       min-height: 0;
       border: 1px solid var(--border);
-      border-radius: 18px;
+      border-radius: 12px;
       padding: 16px 14px;
       font-size: 1rem;
       line-height: 1.5;
@@ -181,6 +199,10 @@
       overflow-y: auto;
       display: grid;
       gap: 14px;
+    }
+
+    .response-box button {
+      font: inherit;
     }
 
     .result-section {
@@ -203,6 +225,25 @@
       line-height: 1.7;
       white-space: pre-wrap;
       word-break: break-word;
+    }
+
+    .source-ref {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 2px;
+      padding: 1px 7px;
+      border: 1px solid #8dd3c7;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #0f766e;
+      font-size: 0.95em;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .source-ref:hover {
+      background: #d1fae5;
     }
 
     .result-empty {
@@ -262,14 +303,71 @@
       line-height: 1.5;
     }
 
-    @media (max-width: 900px) {
-      body {
-        padding: 0;
-      }
+    .source-modal[hidden] {
+      display: none;
+    }
 
+    .source-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(15, 23, 42, 0.45);
+    }
+
+    .source-modal-dialog {
+      width: min(900px, 100%);
+      max-height: min(80vh, 900px);
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .source-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .source-modal-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .source-modal-close {
+      min-width: 40px;
+      min-height: 40px;
+      padding: 0 12px;
+      border-radius: 999px;
+    }
+
+    .source-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.7;
+      color: #1f2937;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    @media (max-width: 900px) {
       .card {
         width: 100vw;
         max-width: 100vw;
+        height: auto;
+        min-height: 100vh;
         border-radius: 0;
         border-left: 0;
         border-right: 0;
@@ -285,12 +383,22 @@
       }
 
       .left-pane textarea {
-        min-height: 45vh;
+        min-height: 22vh;
+        height: auto;
+        max-height: none;
       }
 
       .response-box,
       .history-list {
         min-height: 45vh;
+      }
+
+      .source-modal {
+        padding: 12px;
+      }
+
+      .source-modal-dialog {
+        max-height: 88vh;
       }
     }
   </style>
@@ -311,6 +419,7 @@
             <button id="submit-btn" type="submit">查詢</button>
             <span id="timer" class="timer" aria-live="polite">0.0 秒</span>
           </div>
+          <p id="status" class="status"></p>
         </section>
 
         <section class="result-pane">
@@ -326,9 +435,18 @@
           </ol>
         </section>
       </div>
-      <p id="status" class="status"></p>
     </form>
   </main>
+
+  <div id="source-modal" class="source-modal" hidden>
+    <div class="source-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="source-modal-title">
+      <div class="source-modal-header">
+        <h2 id="source-modal-title" class="source-modal-title">來源內容</h2>
+        <button id="source-modal-close" class="source-modal-close" type="button" aria-label="關閉">關閉</button>
+      </div>
+      <div id="source-modal-body" class="source-modal-body">讀取中...</div>
+    </div>
+  </div>
 
   <script>
     const appApiBaseUrl = `${window.location.origin}/api/tcm-consult`;
@@ -340,6 +458,12 @@
     const statusEl = document.getElementById("status");
     const responseEl = document.getElementById("response");
     const historyListEl = document.getElementById("history-list");
+    const sourceModalEl = document.getElementById("source-modal");
+    const sourceModalTitleEl = document.getElementById("source-modal-title");
+    const sourceModalBodyEl = document.getElementById("source-modal-body");
+    const sourceModalCloseEl = document.getElementById("source-modal-close");
+    const defaultQuestion = questionInput.value;
+    const backendUnavailableMessage = "後端AI模型尚未啟動，請洽資訊部";
     const defaultReply = `真的很抱歉妳已經辛苦嘗試多年了，我用診所現有紀錄幫妳把可參考的調理方向簡短整理，並想再問兩個問題以利後續幫妳安排較個人化的建議（參考編號：1991、1228、1990、1298）。
 
 簡短可參考調理項目（紀錄中曾使用）：
@@ -360,6 +484,7 @@
     let timerStartedAt = 0;
     let fixedTimerSeconds = null;
     let historyRecords = [];
+    let lastFocusedSourceButton = null;
     let sessionId = localStorage.getItem(sessionStorageKey);
     if (!sessionId) {
       sessionId = "sid-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
@@ -438,13 +563,18 @@
         if (data && typeof data === "object" && "reply" in data) {
           const reply = String(data.reply ?? "");
           setTimer(data.durationSeconds);
-          renderReply(reply);
           updateHistoryRecords(data.history);
 
           if (data.success) {
+            renderReply(reply);
             statusEl.textContent = "送出成功，已收到 n8n 回覆。";
           } else {
-            statusEl.textContent = "n8n 回傳 success=false。";
+            if (reply === backendUnavailableMessage) {
+              statusEl.textContent = backendUnavailableMessage;
+            } else {
+              renderReply(reply);
+              statusEl.textContent = "n8n 回傳 success=false。";
+            }
             statusEl.className = "status err";
           }
         } else {
@@ -468,7 +598,7 @@
       const parsed = parseReplySections(reply);
       responseEl.innerHTML = "";
       responseEl.appendChild(createResultSection("診斷建議（Assessment／評估）", parsed.assessment));
-      responseEl.appendChild(createResultSection("用藥方案建議（Plan／計畫）", parsed.medicationPlan));
+      responseEl.appendChild(createResultSection("用藥方案建議（Plan／計畫）", normalizeMedicationPlan(parsed.medicationPlan)));
       responseEl.appendChild(createResultSection("調養方案建議（Plan／計畫）", parsed.carePlan));
       responseEl.scrollTop = 0;
     }
@@ -480,10 +610,10 @@
       const heading = document.createElement("h3");
       heading.textContent = title;
 
-      const body = document.createElement("p");
+      const body = document.createElement("div");
       body.className = "result-content";
       if (content) {
-        body.textContent = content;
+        body.innerHTML = formatReplyContent(content);
       } else {
         body.textContent = "目前尚無對應內容。";
         body.classList.add("result-empty");
@@ -628,6 +758,91 @@
       return "assessment";
     }
 
+    function normalizeMedicationPlan(content) {
+      return String(content || "")
+        .replace(/藥品[／/]方劑\s*[:：]\s*/gi, "")
+        .trim();
+    }
+
+    function formatReplyContent(content) {
+      return escapeHtml(String(content || ""))
+        .replace(/\n/g, "<br>")
+        .replace(/(?<![\w>])(\d{3,6})(?![\w<])/g, (_, sourceId) => {
+          return `<button type="button" class="source-ref" data-source-id="${sourceId}">${sourceId}</button>`;
+        });
+    }
+
+    responseEl.addEventListener("click", async (event) => {
+      const button = event.target.closest(".source-ref");
+      if (!button) {
+        return;
+      }
+
+      const sourceId = button.dataset.sourceId;
+      if (!sourceId) {
+        return;
+      }
+
+      lastFocusedSourceButton = button;
+      openSourceModal(sourceId);
+      sourceModalBodyEl.textContent = `正在讀取編號 ${sourceId} 的內容...`;
+
+      try {
+        const response = await fetch(`${appApiBaseUrl}/source?sourceId=${encodeURIComponent(sourceId)}`);
+        const rawText = await response.text();
+        let data = null;
+
+        try {
+          data = rawText ? JSON.parse(rawText) : null;
+        } catch (_error) {
+          data = null;
+        }
+
+        if (!response.ok) {
+          throw new Error(data && data.error ? data.error : `HTTP ${response.status}`);
+        }
+
+        if (!data || typeof data !== "object") {
+          throw new Error("來源 API 尚未啟用，請重新啟動 app.py");
+        }
+
+        const source = data.source || {};
+        sourceModalTitleEl.textContent = `來源編號 ${source.documentId || source.id || sourceId}`;
+        sourceModalBodyEl.textContent = String(source.text || "此來源沒有文字內容。");
+      } catch (error) {
+        sourceModalTitleEl.textContent = `來源編號 ${sourceId}`;
+        sourceModalBodyEl.textContent = `讀取失敗：${error.message}`;
+      }
+    });
+
+    sourceModalCloseEl.addEventListener("click", closeSourceModal);
+
+    sourceModalEl.addEventListener("click", (event) => {
+      if (event.target === sourceModalEl) {
+        closeSourceModal();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !sourceModalEl.hidden) {
+        closeSourceModal();
+      }
+    });
+
+    function openSourceModal(sourceId) {
+      sourceModalTitleEl.textContent = `來源編號 ${sourceId}`;
+      sourceModalEl.hidden = false;
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSourceModal() {
+      sourceModalEl.hidden = true;
+      document.body.style.overflow = "";
+      if (lastFocusedSourceButton) {
+        lastFocusedSourceButton.focus();
+      }
+    }
+
     function startTimer() {
       stopTimer();
       fixedTimerSeconds = null;
@@ -691,20 +906,37 @@
           <small>${formatAskedAt(record.askedAt)} | ${formatDuration(record.executionSeconds)}</small>
         `;
         button.addEventListener("click", () => {
-          const selectedQuestion = record.question || record.consultationText || "";
-          const selectedReply = record.reply || record.responseText || "";
-          questionInput.value = selectedQuestion;
-          renderReply(selectedReply);
-          setTimer(record.executionSeconds);
-          document.querySelectorAll(".history-button.active").forEach((activeButton) => {
-            activeButton.classList.remove("active");
-          });
-          button.classList.add("active");
+          applyHistoryRecord(record, index);
         });
 
         item.appendChild(button);
         historyListEl.appendChild(item);
       });
+    }
+
+    function applyHistoryRecord(record, activeIndex = 0) {
+      if (!record || typeof record !== "object") {
+        return;
+      }
+
+      const selectedQuestion = record.question || record.consultationText || "";
+      const selectedReply = record.reply || record.responseText || "";
+      questionInput.value = selectedQuestion || defaultQuestion;
+      renderReply(selectedReply || defaultReply);
+      setTimer(record.executionSeconds);
+      setActiveHistoryButton(activeIndex);
+    }
+
+    function setActiveHistoryButton(activeIndex) {
+      document.querySelectorAll(".history-button.active").forEach((activeButton) => {
+        activeButton.classList.remove("active");
+      });
+
+      const buttons = historyListEl.querySelectorAll(".history-button");
+      const targetButton = buttons[activeIndex];
+      if (targetButton) {
+        targetButton.classList.add("active");
+      }
     }
 
     function truncateText(text, maxLength) {
@@ -719,9 +951,19 @@
         const response = await fetch(`${appApiBaseUrl}/history?doctorName=${encodeURIComponent(doctorName)}`);
         const data = await response.json();
         updateHistoryRecords(data.history);
+        if (Array.isArray(data.history) && data.history.length) {
+          applyHistoryRecord(data.history[0], 0);
+        } else {
+          questionInput.value = defaultQuestion;
+          renderReply(defaultReply);
+          timerEl.textContent = "0.0 秒";
+        }
       } catch (_error) {
         historyRecords = [];
         renderHistory();
+        questionInput.value = defaultQuestion;
+        renderReply(defaultReply);
+        timerEl.textContent = "0.0 秒";
       }
     }
 

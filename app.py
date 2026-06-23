@@ -79,7 +79,7 @@ def normalize_asked_at(sent_at: str | None) -> datetime:
     return datetime.now(timezone.utc)
 
 
-def call_n8n(payload: dict[str, Any]) -> tuple[bool, str, float]:
+def call_n8n(payload: dict[str, Any]) -> tuple[bool, str, float, int | None]:
     request_body = json.dumps(payload).encode("utf-8")
     request = Request(
         N8N_TCM_WEBHOOK_URL,
@@ -101,19 +101,21 @@ def call_n8n(payload: dict[str, Any]) -> tuple[bool, str, float]:
                 data = None
 
             if isinstance(data, dict) and "success" in data and "reply" in data:
-                return bool(data.get("success")), str(data.get("reply") or ""), duration_seconds
+                return bool(data.get("success")), str(data.get("reply") or ""), duration_seconds, response.status
 
-            return True, response_text or "(Webhook 無回傳內容)", duration_seconds
+            return True, response_text or "(Webhook 無回傳內容)", duration_seconds, response.status
     except HTTPError as error:
         response_text = error.read().decode("utf-8", errors="replace")
         duration_seconds = round(time.perf_counter() - started_at, 3)
-        return False, f"HTTP {error.code}: {response_text or 'Unknown error'}", duration_seconds
+        if error.code == HTTPStatus.NOT_FOUND:
+            return False, "後端AI模型尚未啟動，請洽資訊部", duration_seconds, error.code
+        return False, f"HTTP {error.code}: {response_text or 'Unknown error'}", duration_seconds, error.code
     except URLError as error:
         duration_seconds = round(time.perf_counter() - started_at, 3)
-        return False, f"連線失敗：{error.reason}", duration_seconds
+        return False, f"連線失敗：{error.reason}", duration_seconds, None
     except Exception as error:  # pragma: no cover - defensive fallback
         duration_seconds = round(time.perf_counter() - started_at, 3)
-        return False, f"送出失敗：{error}", duration_seconds
+        return False, f"送出失敗：{error}", duration_seconds, None
 
 
 def save_consult_log(
@@ -181,6 +183,35 @@ def fetch_recent_history(doctor_name: str, limit: int = 10) -> list[dict[str, An
     return history
 
 
+def fetch_source_document(source_id: str) -> dict[str, Any] | None:
+    normalized_source_id = str(source_id).strip()
+    if not normalized_source_id or not normalized_source_id.isdigit():
+        return None
+
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, text
+                FROM public.documents_tcm_sin_ollama
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (int(normalized_source_id),),
+            )
+            row = cur.fetchone()
+
+    if not row:
+        return None
+
+    document_id, text = row
+    return {
+        "id": str(document_id),
+        "documentId": str(document_id),
+        "text": str(text or ""),
+    }
+
+
 class AppHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, directory=str(BASE_DIR), **kwargs)
@@ -212,6 +243,25 @@ class AppHandler(SimpleHTTPRequestHandler):
             json_response(self, HTTPStatus.OK, {"history": history})
             return
 
+        if parsed.path == "/api/tcm-consult/source":
+            source_id = parse_qs(parsed.query).get("sourceId", [""])[0].strip()
+            if not source_id:
+                json_response(self, HTTPStatus.BAD_REQUEST, {"error": "缺少 sourceId"})
+                return
+
+            try:
+                source_document = fetch_source_document(source_id)
+            except Exception as error:
+                json_response(self, HTTPStatus.INTERNAL_SERVER_ERROR, {"error": f"讀取來源失敗：{error}"})
+                return
+
+            if not source_document:
+                json_response(self, HTTPStatus.NOT_FOUND, {"error": f"查無編號 {source_id} 的來源資料"})
+                return
+
+            json_response(self, HTTPStatus.OK, {"source": source_document})
+            return
+
         super().do_GET()
 
     def do_POST(self) -> None:
@@ -239,7 +289,7 @@ class AppHandler(SimpleHTTPRequestHandler):
             json_response(self, HTTPStatus.BAD_REQUEST, {"error": "請先輸入問診資訊"})
             return
 
-        success, reply, duration_seconds = call_n8n(
+        success, reply, duration_seconds, status_code = call_n8n(
             {
                 "doctorName": doctor_name,
                 "question": question,
@@ -247,6 +297,20 @@ class AppHandler(SimpleHTTPRequestHandler):
                 "sentAt": asked_at.isoformat(),
             }
         )
+
+        if status_code == HTTPStatus.NOT_FOUND:
+            json_response(
+                self,
+                HTTPStatus.OK,
+                {
+                    "success": False,
+                    "reply": "後端AI模型尚未啟動，請洽資訊部",
+                    "durationSeconds": duration_seconds,
+                    "askedAt": asked_at.isoformat(),
+                    "history": fetch_recent_history(doctor_name),
+                },
+            )
+            return
 
         try:
             save_consult_log(
